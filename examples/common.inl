@@ -12,31 +12,31 @@ nmb_Handle g_hEditCopy = 0;
 nmb_Handle g_hEditPaste = 0;
 nmb_Handle g_hHelpAbout = 0;
 
-void createMenuBar(void* nativeWindowHandle)
+void createMenuBar(void* nativeHandle)
 {
-    nmb_setup(nativeWindowHandle);
-    
+    nmb_setup(nativeHandle);
+
     nmb_Handle hEditMenu = nmb_appendMenu(NULL, "Edit");
     nmb_Handle hHelpMenu = nmb_appendMenu(NULL, "Help öäĂĹŸ");
     nmb_Handle hFileMenu = nmb_insertMenu(NULL, 0, "File"); /* example inserting at a specific position in the menu bar */
 
     /* File menu */
-    g_hFileNew = nmb_appendMenuItem(hFileMenu, "New");
-    g_hFileOpen = nmb_appendMenuItem(hFileMenu, "Open...");
-    g_hFileSave = nmb_appendMenuItem(hFileMenu, "Save");
-    nmb_appendMenuItem(hFileMenu, "Check Me");
+    g_hFileNew = nmb_appendMenuItem(hFileMenu, "_New");
+    g_hFileOpen = nmb_appendMenuItem(hFileMenu, "_Open...");
+    g_hFileSave = nmb_appendMenuItem(hFileMenu, "_Save");
+    nmb_appendCheckMenuItem(hFileMenu, "Check Me");
     nmb_appendSeparator(hFileMenu);
     g_hFileEnabler = nmb_appendMenuItem(hFileMenu, "Enabler");
     g_hFileEnablee = nmb_appendMenuItem(hFileMenu, "Enablee");
 
     /* Edit menu */
-    g_hEditCopy = nmb_appendMenuItem(hEditMenu, "Copy");
-    g_hEditPaste = nmb_appendMenuItem(hEditMenu, "Paste");
+    g_hEditCopy = nmb_appendMenuItem(hEditMenu, "_Copy");
+    g_hEditPaste = nmb_appendMenuItem(hEditMenu, "_Paste");
 
     nmb_Handle submenu1 = nmb_insertMenu(hFileMenu, 1, "Inserted Submenu");
-    nmb_appendMenuItem(submenu1, "Item 1");
-    nmb_appendMenuItem(submenu1, "Item 2");
-    nmb_appendMenuItem(submenu1, "Item 3");
+    nmb_appendCheckMenuItem(submenu1, "Item 1");
+    nmb_appendCheckMenuItem(submenu1, "Item 2");
+    nmb_appendCheckMenuItem(submenu1, "Item 3");
     nmb_insertMenuItem(submenu1, 1, "Inserted Menu");
     nmb_insertSeparator(hFileMenu, 2);
     nmb_insertSeparator(hFileMenu, 1);
@@ -79,7 +79,7 @@ void handleEvents()
         }
         else if (e.sender == g_hHelpAbout)
         {
-            printf("SDL2 Window Demo\nVersion 1.0\n");
+            printf("Native Menu Bar Demo\nVersion 1.0\n");
         }
         else
         {

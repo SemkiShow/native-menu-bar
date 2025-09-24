@@ -92,6 +92,12 @@ nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption);
 */
 nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption);
 
+/** TODO */
+nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption);
+
+/** TODO */
+nmb_Handle nmb_insertCheckMenuItem(nmb_Handle parent, int index, const char* caption);
+
 /** Appends a separator line to the given parent menu. */
 void nmb_appendSeparator(nmb_Handle parent);
 

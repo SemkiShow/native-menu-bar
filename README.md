@@ -4,20 +4,28 @@
 
 ![mac screenshot](./screenshots/mac.png) ![windows screenshot](./screenshots/windows.png)
 
-Native Menu Bar is a C API for adding menus to your application using native UI on Windows and Mac.
+Native Menu Bar is a C API for adding menus to your application using native UI on Windows and Mac, and using GTK2 or GTK3 backends on supported platforms e.g. Linux.
+
+Library setup is slightly different depending on the backend implementation and will probbaly require some `#ifdef`s in your code. See the examples for more info.
 
 User interaction is forwarded to your application as events which can be responded to using the same code on all platforms.
 
 Features:
 
 * Menu bar with menus and submenus
-* Clickable menu items
-* Toggleable checkmark on menu items
+* Regular menu items
+* Checkmark menu items
 * Enable and disable (grey out) menu items
 * Only 2 files for easy integration, .h and .c
 * Compiles cleanly on MSVC and clang
 
 Please note that this library is not thread safe on any platform. You should not attempt to call any API functions from different threads at the same time.
+
+## Notes
+
+The API provides different functions for checkable menu items `nmb_insertCheckMenuItem` and regular menu items `nmb_insertMenuItem`. This distinction is required by GTK backends which renders the two differently, but not WIN32 or Cocoa. If you don't care about GTK you can use regular menu items everywhere and set/check their checked state with `nmb_set/isMenuItemChecked`.
+
+Currently the library supports both GTK2 and GTK3. At the time of writing GTK2 and 3 on MacOS have strange behaviour around window resizing and respond to mouse input inconsistently. The GTK2 backend also issues deprecation warnings when compiling.
 
 ## Building
 
@@ -27,12 +35,13 @@ On mac `native_menu_bar.c` should be compiled as Objective-C. You can do this by
 
 Additionally on mac, Automatic Reference Counting (ARC) should be disabled for `native_menu_bar.c`. If you have ARC enabled for you project you can disable it for individual files by adding the flag `-fno-objc-arc` in _project name_ > Targets > _project name_ > Build Phases > Compile Sources.
 
+
 ## Building Examples
 
 On Mac:
 
 ```sh
-brew install sdl2
+brew install sdl2 gtk+ gtk+3
 cd examples
 ./premake xcode4
 open ./build/xcode4/examples.xcworkspace

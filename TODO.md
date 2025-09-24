@@ -1,36 +1,10 @@
 ## Plan
 
-### MVP Features
+### Next
 
-- [x] create main menu bar with menus and sub-menus
-- [x] append regular text menu items
-- [x] separator lines
-- [x] check / uncheck mark next to menu items
-- [x] enable/disable menu items
-- [x] simplified mac and windows examples
-
-### Release Work
-
-- [x] add license
-- [x] compile as C99 to latest C, C++98 to latest C++
-- [x] compile on all of the above without warnings on windows and mac
-- [x] make sure i'm doing cleanup and reasonable-ish memory management
-- [x] insert items into menus at specific index
-- [x] cross platform SDL2 example
-- [x] inline documentation in .h
-- [x] double check the API is using typical C practice
-	(e.g. enum and type names, should I use stdbool.h or ints for returns, name conventions / case, etc.)
-
-### Further Work
-
-- [ ] Keyboard shortcuts (key equivalents on mac)
-	
-	Desired behaviour is to forward an event to the event loop (with a flag to say it was triggered by a shortcut) when the shortcut was pressed.
-
-	On mac this should be straight forward using key equivalents?
-
-	On windows it might require creating an accelerator table by populating ACCEL structures. See https://learn.microsoft.com/en-us/windows/win32/menurc/using-keyboard-accelerators#creating-a-run-time-accelerator-table . This may require updating the table when new entries with keyboard shortcuts are added
-
+- [ ] make GTK checkbox check/uncheck behaivour consisent with other platforms
+- [ ] test GTK backends on WSL
+- [ ] update readme with building instructions for Linux/WSL
 
 - [ ] Windows accelerator keys (the thing that happens when you press Alt)
 
@@ -42,6 +16,16 @@
 	1. Do nothing. Accelerator keys are not a cross platform feature anyway.
 	2. Allow users to have & in the item caption to get accelerator key behaviour on windows. Strip them out on mac. If they don't work (e.g. because of SDL) assume that's intended and it's up to the user to solve it (e.g. if they DO want accelerator keys in their SDL app).
 	3. Have our own API function to enable/disable accelerator keys that works independently of the backend (win32, sdl2, sfml, etc.) so the user gets an easy choice.
+
+### Further Work
+
+- [ ] Keyboard shortcuts (key equivalents on mac)
+	
+	Desired behaviour is to forward an event to the event loop (with a flag to say it was triggered by a shortcut) when the shortcut was pressed.
+
+	On mac this should be straight forward using key equivalents?
+
+	On windows it might require creating an accelerator table by populating ACCEL structures. See https://learn.microsoft.com/en-us/windows/win32/menurc/using-keyboard-accelerators#creating-a-run-time-accelerator-table . This may require updating the table when new entries with keyboard shortcuts are added
 
 - [ ] Review robustness of approach to UTF-8 text on Windows.
 
@@ -75,7 +59,6 @@
 - Add the searchable help menu on mac
 - easily create the default menus expected on each platform?
 - Dear ImGui implementation
-- Linux
 - Web (through ImGui fallback?)
 
 ## Resources
