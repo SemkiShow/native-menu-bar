@@ -245,35 +245,35 @@ void nmb_setMenuItemChecked(nmb_Handle menuItem, bool checked)
 
 bool nmb_isMenuItemChecked(nmb_Handle menuItem)
 {
-	if (!menuItem) return false;
+    if (!menuItem) return false;
 
-	UINT state = GetMenuState(g.menuBar, (UINT)(uintptr_t)menuItem, MF_BYCOMMAND);
-	if (state == (UINT)-1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to get menu item state: %lu\n", GetLastError());
-		return false;
-	}
-	return (state & MF_CHECKED) == MF_CHECKED;
+    UINT state = GetMenuState(g.menuBar, (UINT)(uintptr_t)menuItem, MF_BYCOMMAND);
+    if (state == (UINT)-1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to get menu item state: %lu\n", GetLastError());
+        return false;
+    }
+    return (state & MF_CHECKED) == MF_CHECKED;
 }
 
 
 void nmb_setMenuItemEnabled(nmb_Handle menuItem, bool enabled)
 {
-	if (!menuItem) return;
+    if (!menuItem) return;
 
-	UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_GRAYED);
-	BOOL result = EnableMenuItem(g.menuBar, (UINT)(uintptr_t)menuItem, flags);
-	if (result == -1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to set menu item enabled state: %lu\n", GetLastError());
-		return;
-	}
-	DrawMenuBar(g.hwnd);
+    UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_GRAYED);
+    BOOL result = EnableMenuItem(g.menuBar, (UINT)(uintptr_t)menuItem, flags);
+    if (result == -1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to set menu item enabled state: %lu\n", GetLastError());
+        return;
+    }
+    DrawMenuBar(g.hwnd);
 }
 
 bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 {
-	if (!menuItem) return false;
+    if (!menuItem) return false;
 
     UINT state = GetMenuState(g.menuBar, (UINT)(uintptr_t)menuItem, MF_BYCOMMAND);
     if (state == (UINT)-1)

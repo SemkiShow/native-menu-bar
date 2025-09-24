@@ -26,7 +26,7 @@ local is_windows = _TARGET_OS == "windows"
 
 workspace "examples"
 
-	location ("build/".._ACTION)
+    location ("build/".._ACTION)
     configurations { "Debug", "Release" }
 
     filter { "configurations:Debug" }

@@ -49,7 +49,7 @@ HWND createWindow(wchar_t* title, int x, int y, int width, int height)
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     WNDCLASS wc;
-	memset(&wc, 0, sizeof(WNDCLASS));
+    memset(&wc, 0, sizeof(WNDCLASS));
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
@@ -81,8 +81,8 @@ HWND createWindow(wchar_t* title, int x, int y, int width, int height)
 int APIENTRY WinMain(HINSTANCE hCurrentInst, HINSTANCE hPreviousInst, LPSTR lpszCmdLine, int nCmdShow)
 {
     UNUSED(hCurrentInst);
-	UNUSED(hPreviousInst);
-	UNUSED(lpszCmdLine);
+    UNUSED(hPreviousInst);
+    UNUSED(lpszCmdLine);
 
     HWND hWnd = createWindow(L"Menu Bar Example - Win32", 100, 100, 400, 300);
     if (!hWnd)
@@ -92,7 +92,7 @@ int APIENTRY WinMain(HINSTANCE hCurrentInst, HINSTANCE hPreviousInst, LPSTR lpsz
     createExampleMenuBar(hWnd);
 
     MSG msg;
-	ZeroMemory(&msg, sizeof(MSG));
+    ZeroMemory(&msg, sizeof(MSG));
     bool running = true;
     while (running)
     {
