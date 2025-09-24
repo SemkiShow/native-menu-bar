@@ -61,6 +61,8 @@
 
 	If this gets implemented, fancier cleanup will be needed (e.g. the HMENU handles on windows).
 
+	In general, this library isn't doing any cleanup atm. It would be nice to get to the stage where the user can call setup() and shutdown() multiple during the same app lifecycle and everything works.
+
 ### Extra ideas
 
 - Add the searchable help menu on mac
