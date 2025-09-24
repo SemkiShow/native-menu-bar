@@ -38,7 +38,7 @@ On mac `native_menu_bar.c` should be compiled as Objective-C. You can do this by
 
 Additionally on mac, Automatic Reference Counting (ARC) should be disabled for `native_menu_bar.c`. If you have ARC enabled for you project you can disable it for individual files by adding the flag `-fno-objc-arc` in _project name_ > Targets > _project name_ > Build Phases > Compile Sources.
 
-To see the examples are compiled with premake, read the [premake file](./examples/premake5.lua).
+To see how the examples are compiled with premake, read the [premake file](./examples/premake5.lua).
 
 ## Building Examples
 
