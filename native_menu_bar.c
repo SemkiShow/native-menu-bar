@@ -16,7 +16,9 @@
 #define MAX_EVENTS 64
 #define ERROR_BUFFER_SIZE 128
 #define SCRATCH_BUFFER_SIZE 128
+
 #define UNUSED(x) (void)(x)
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 static char errorBuffer[ERROR_BUFFER_SIZE];
 static char scratchBuffer[SCRATCH_BUFFER_SIZE];
@@ -50,7 +52,7 @@ static void pushEvent(const nmb_Event* e)
 
 const char* nmb_getLastError(void)
 {
-	return errorBuffer;
+    return errorBuffer;
 }
 
 void stringCopyOrSkip(char* dest, unsigned size, const char* str, char skip)
@@ -85,57 +87,57 @@ static_assert(sizeof(HMENU) == sizeof(nmb_Handle), "Menu handles must be interch
 
 static struct
 {
-	HWND hwnd;
-	HMENU menuBar;
-	WNDPROC originalWndProc;
-	UINT nextId;
-	WCHAR wcharBuffer[CAPTION_BUFFER_SIZE];
+    HWND hwnd;
+    HMENU menuBar;
+    WNDPROC originalWndProc;
+    UINT nextId;
+    WCHAR wcharBuffer[CAPTION_BUFFER_SIZE];
 } g;
 
 static LRESULT CALLBACK menuBarWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (uMsg == WM_COMMAND)
-	{
-		nmb_Event e;
-		e.sender = (nmb_Handle)(uintptr_t)(LOWORD(wParam));
-		e.event = nmb_EventType_itemTriggered;
-		pushEvent(&e);
-		return 0;
-	}
+    if (uMsg == WM_COMMAND)
+    {
+        nmb_Event e;
+        e.sender = (nmb_Handle)(uintptr_t)(LOWORD(wParam));
+        e.event = nmb_EventType_itemTriggered;
+        pushEvent(&e);
+        return 0;
+    }
 
-	return CallWindowProc(g.originalWndProc, hWnd, uMsg, wParam, lParam);
+    return CallWindowProc(g.originalWndProc, hWnd, uMsg, wParam, lParam);
 }
 
 static WCHAR* utf8ToWide(const char* utf8)
 {
-	if (!utf8) return NULL;
-	MultiByteToWideChar(CP_UTF8, 0, utf8, -1, g.wcharBuffer, CAPTION_BUFFER_SIZE);
-	return g.wcharBuffer;
+    if (!utf8) return NULL;
+    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, g.wcharBuffer, CAPTION_BUFFER_SIZE);
+    return g.wcharBuffer;
 }
 
 void nmb_setup(void* hWnd)
 {
-	memset(&g, 0, sizeof(g));
-	errorBuffer[0] = 0;
-	g.nextId = 1;
-	g.hwnd = (HWND)hWnd;
-	g.originalWndProc = (WNDPROC)SetWindowLongPtr(g.hwnd, GWLP_WNDPROC, (LONG_PTR)menuBarWndProc);
-	g.menuBar = CreateMenu();
-	if (!SetMenu(g.hwnd, g.menuBar))
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to set menu on window: %lu\n", GetLastError());
-	}
-	if (!DrawMenuBar(g.hwnd))
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to draw menu bar on window: %lu\n", GetLastError());
-	}
+    memset(&g, 0, sizeof(g));
+    errorBuffer[0] = 0;
+    g.nextId = 1;
+    g.hwnd = (HWND)hWnd;
+    g.originalWndProc = (WNDPROC)SetWindowLongPtr(g.hwnd, GWLP_WNDPROC, (LONG_PTR)menuBarWndProc);
+    g.menuBar = CreateMenu();
+    if (!SetMenu(g.hwnd, g.menuBar))
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to set menu on window: %lu\n", GetLastError());
+    }
+    if (!DrawMenuBar(g.hwnd))
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to draw menu bar on window: %lu\n", GetLastError());
+    }
 }
 
 void nmb_shutdown(void)
 {
-	SetWindowLongPtr(g.hwnd, GWLP_WNDPROC, (LONG_PTR)g.originalWndProc); /* restore the old wndproc */
-	DestroyMenu(g.menuBar);
-	memset(&g, 0, sizeof(g));
+    SetWindowLongPtr(g.hwnd, GWLP_WNDPROC, (LONG_PTR)g.originalWndProc); /* restore the old wndproc */
+    DestroyMenu(g.menuBar);
+    memset(&g, 0, sizeof(g));
 }
 
 bool nmb_pollEvent(nmb_Event* event)
@@ -150,95 +152,95 @@ nmb_Backend nmb_getBackend()
 
 nmb_Handle nmb_appendMenu(nmb_Handle parent, const char* caption)
 {
-	return nmb_insertMenu(parent, -1, caption);
+    return nmb_insertMenu(parent, -1, caption);
 }
 
 /* TODO: allow passing negative indices to insert from the end of the menu */
 nmb_Handle nmb_insertMenu(nmb_Handle parent, int index, const char* caption)
 {
-	if (index < -1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
-		return NULL;
-	}
+    if (index < -1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return NULL;
+    }
 
-	if (!parent)
-	{
-		parent = g.menuBar;
-	}
+    if (!parent)
+    {
+        parent = g.menuBar;
+    }
 
-	nmb_Handle submenu = CreatePopupMenu();
-	BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_POPUP, (UINT_PTR)submenu, utf8ToWide(caption));
-	if (!result)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert submenu '%s'. Windows error %lu\n", caption, GetLastError());
-		return NULL;
-	}
-	DrawMenuBar(g.hwnd);
-	return submenu;
+    nmb_Handle submenu = CreatePopupMenu();
+    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_POPUP, (UINT_PTR)submenu, utf8ToWide(caption));
+    if (!result)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert submenu '%s'. Windows error %lu\n", caption, GetLastError());
+        return NULL;
+    }
+    DrawMenuBar(g.hwnd);
+    return submenu;
 }
 
 nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption)
 {
-	return nmb_insertMenuItem(parent, -1, caption);
+    return nmb_insertMenuItem(parent, -1, caption);
 }
 
 /* TODO: allow passing negative indices to insert from the end of the menu */
 nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
 {
-	if (index < -1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
-		return NULL;
-	}
+    if (index < -1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return NULL;
+    }
 
-	if (!parent)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create menu item because parent was NULL\n");
-		return NULL;
-	}
+    if (!parent)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create menu item because parent was NULL\n");
+        return NULL;
+    }
 
-	UINT id = g.nextId++;
-	BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_STRING, id, utf8ToWide(caption));
-	if (!result)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert menu item '%s'. Windows error %lu\n", caption, GetLastError());
-		return NULL;
-	}
-	DrawMenuBar(g.hwnd);
-	return (nmb_Handle)(uintptr_t)id;
+    UINT id = g.nextId++;
+    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_STRING, id, utf8ToWide(caption));
+    if (!result)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert menu item '%s'. Windows error %lu\n", caption, GetLastError());
+        return NULL;
+    }
+    DrawMenuBar(g.hwnd);
+    return (nmb_Handle)(uintptr_t)id;
 }
 
 void nmb_appendSeparator(nmb_Handle parent)
 {
-	nmb_insertSeparator(parent, -1);
+    nmb_insertSeparator(parent, -1);
 }
 
 void nmb_insertSeparator(nmb_Handle parent, int index)
 {
-	if (index < -1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
-		return;
-	}
+    if (index < -1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return;
+    }
 
-	if (!parent)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create separator because parent was NULL\n");
-		return;
-	}
+    if (!parent)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create separator because parent was NULL\n");
+        return;
+    }
 
-	InsertMenu((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
-	DrawMenuBar(g.hwnd);
+    InsertMenu((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+    DrawMenuBar(g.hwnd);
 }
 
 void nmb_setMenuItemChecked(nmb_Handle menuItem, bool checked)
 {
-	if (!menuItem) return;
+    if (!menuItem) return;
 
-	UINT flags = MF_BYCOMMAND | (checked ? MF_CHECKED : MF_UNCHECKED);
-	CheckMenuItem(GetMenu(g.hwnd), (UINT)(uintptr_t)menuItem, flags);
-	DrawMenuBar(g.hwnd);
+    UINT flags = MF_BYCOMMAND | (checked ? MF_CHECKED : MF_UNCHECKED);
+    CheckMenuItem(GetMenu(g.hwnd), (UINT)(uintptr_t)menuItem, flags);
+    DrawMenuBar(g.hwnd);
 }
 
 bool nmb_isMenuItemChecked(nmb_Handle menuItem)
@@ -273,13 +275,13 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 {
 	if (!menuItem) return false;
 
-	UINT state = GetMenuState(g.menuBar, (UINT)(uintptr_t)menuItem, MF_BYCOMMAND);
-	if (state == (UINT)-1)
-	{
-		snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to get menu item state: %lu\n", GetLastError());
-		return false;
-	}
-	return (state & MF_GRAYED) != MF_GRAYED;
+    UINT state = GetMenuState(g.menuBar, (UINT)(uintptr_t)menuItem, MF_BYCOMMAND);
+    if (state == (UINT)-1)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to get menu item state: %lu\n", GetLastError());
+        return false;
+    }
+    return (state & MF_GRAYED) != MF_GRAYED;
 }
 
 #endif
@@ -299,9 +301,9 @@ static struct
 @implementation MenuHandler
 - (void)handleAction:(id)sender
 {
-	nmb_Event e;
-	e.sender = sender;
-	e.event = nmb_EventType_itemTriggered;
+    nmb_Event e;
+    e.sender = sender;
+    e.event = nmb_EventType_itemTriggered;
     pushEvent(&e);
 }
 @end
@@ -400,8 +402,8 @@ void nmb_setup(void* windowHandle /* unused on mac */)
 {
     UNUSED(windowHandle);
     memset(&g, 0, sizeof(g));
-	errorBuffer[0] = 0;
-	g.handler = [[MenuHandler alloc] init];
+    errorBuffer[0] = 0;
+    g.handler = [[MenuHandler alloc] init];
 
     /* Check if someone else (e.g. SDL) already built the app menu */
     NSInteger numItemsInAppleMenu = [[[[NSApp mainMenu] itemAtIndex:0] submenu] numberOfItems];
@@ -421,7 +423,7 @@ void nmb_setup(void* windowHandle /* unused on mac */)
 void nmb_shutdown()
 {
     [g.handler release];
-	memset(&g, 0, sizeof(g));
+    memset(&g, 0, sizeof(g));
 }
 
 bool nmb_pollEvent(nmb_Event* event)
@@ -462,11 +464,11 @@ nmb_Handle nmb_insertMenu(nmb_Handle parent, int inputIndex, const char* caption
     }
 
     stringCopyOrSkip(scratchBuffer, SCRATCH_BUFFER_SIZE, caption, '_');
-	NSMenuItem* item = [(NSMenu*)parent insertItemWithTitle:[NSString stringWithCString:scratchBuffer encoding:NSUTF8StringEncoding] action:nil keyEquivalent:@"" atIndex:index];
-	NSMenu* menu = [[NSMenu alloc] init];
-	[item setSubmenu:menu];
+    NSMenuItem* item = [(NSMenu*)parent insertItemWithTitle:[NSString stringWithCString:scratchBuffer encoding:NSUTF8StringEncoding] action:nil keyEquivalent:@"" atIndex:index];
+    NSMenu* menu = [[NSMenu alloc] init];
+    [item setSubmenu:menu];
     [menu release];
-	return menu;
+    return menu;
 }
 
 nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption)
@@ -491,9 +493,9 @@ nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int inputIndex, const char* cap
     }
 
     stringCopyOrSkip(scratchBuffer, SCRATCH_BUFFER_SIZE, caption, '_');
-	NSMenuItem* item = [(NSMenu*)parent insertItemWithTitle:[NSString stringWithCString:scratchBuffer encoding:NSUTF8StringEncoding] action:@selector(handleAction:) keyEquivalent:@"" atIndex:index];
-	[item setTarget:g.handler];
-	return item;
+    NSMenuItem* item = [(NSMenu*)parent insertItemWithTitle:[NSString stringWithCString:scratchBuffer encoding:NSUTF8StringEncoding] action:@selector(handleAction:) keyEquivalent:@"" atIndex:index];
+    [item setTarget:g.handler];
+    return item;
 }
 
 nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption)
@@ -532,22 +534,22 @@ void nmb_insertSeparator(nmb_Handle parent, int inputIndex)
 
 void nmb_setMenuItemChecked(nmb_Handle menuItem, bool checked)
 {
-	((NSMenuItem*)menuItem).state = checked ? NSControlStateValueOn : NSControlStateValueOff;
+    ((NSMenuItem*)menuItem).state = checked ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
 bool nmb_isMenuItemChecked(nmb_Handle menuItem)
 {
-	return ((NSMenuItem*)menuItem).state == NSControlStateValueOn;
+    return ((NSMenuItem*)menuItem).state == NSControlStateValueOn;
 }
 
 void nmb_setMenuItemEnabled(nmb_Handle menuItem, bool enabled)
 {
-	((NSMenuItem*)menuItem).action = enabled ? @selector(handleAction:) : nil;
+    ((NSMenuItem*)menuItem).action = enabled ? @selector(handleAction:) : nil;
 }
 
 bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 {
-	return ((NSMenuItem*)menuItem).enabled;
+    return ((NSMenuItem*)menuItem).enabled;
 }
 
 #endif
@@ -557,6 +559,8 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 
 static struct {
     GtkWidget* menuBar;
+    bool shouldToggleCheckMenuItem;
+    bool isInsideOnActivate;
 } context;
 
 
@@ -571,17 +575,38 @@ static int adjustIndex(nmb_Handle parent, int index)
     return index;
 }
 
-static void onActivate(GtkWidget* widget, gpointer ptr)
+static void onActivate(GtkWidget* widget, gpointer isCheckMenuItem)
 {
-    UNUSED(ptr);
-    nmb_Event e;
-    e.sender = widget;
-    e.event = nmb_EventType_itemTriggered;
-    pushEvent(&e);
+    if(isCheckMenuItem)
+    {
+        if(context.shouldToggleCheckMenuItem)
+        {
+            return;
+        }
+        else
+        {
+            if(!context.isInsideOnActivate)
+            {
+                context.isInsideOnActivate = true;
+                bool isActive = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+                gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), !isActive);
+                return;
+            }
+            context.isInsideOnActivate = false;
+        }
+    }
+
+    {
+        nmb_Event e;
+        e.sender = widget;
+        e.event = nmb_EventType_itemTriggered;
+        pushEvent(&e);
+    }
 }
 
 void nmb_setup(void* menuBar)
 {
+    context.shouldToggleCheckMenuItem = false;
     context.menuBar = menuBar;
 }
 
@@ -641,7 +666,7 @@ nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption)
 
 typedef GtkWidget* (*ItemCreateFunc)(const gchar* label);
 
-static nmb_Handle internal_insertItem(nmb_Handle parent, int index, const char* caption, ItemCreateFunc createFunc)
+static nmb_Handle internal_insertItem(nmb_Handle parent, int index, const char* caption, ItemCreateFunc createFunc, bool isCheckMenuItem)
 {
     if(!parent)
     {
@@ -659,14 +684,14 @@ static nmb_Handle internal_insertItem(nmb_Handle parent, int index, const char* 
 
     GtkWidget* new_item = createFunc(caption);
     gtk_menu_shell_insert(GTK_MENU_SHELL(parent), new_item, index);
-    g_signal_connect(new_item, "activate", G_CALLBACK(onActivate), NULL);
+    g_signal_connect(new_item, "activate", G_CALLBACK(onActivate), isCheckMenuItem ? 1 : 0);
 
     return new_item;
 }
 
 nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
 {
-    return internal_insertItem(parent, index, caption, gtk_menu_item_new_with_mnemonic);
+    return internal_insertItem(parent, index, caption, gtk_menu_item_new_with_mnemonic, false);
 }
 
 nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption)
@@ -676,7 +701,7 @@ nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption)
 
 nmb_Handle nmb_insertCheckMenuItem(nmb_Handle parent, int index, const char* caption)
 {
-    return internal_insertItem(parent, index, caption, gtk_check_menu_item_new_with_mnemonic);
+    return internal_insertItem(parent, index, caption, gtk_check_menu_item_new_with_mnemonic, true);
 }
 
 void nmb_appendSeparator(nmb_Handle parent)
@@ -708,14 +733,17 @@ void nmb_insertSeparator(nmb_Handle parent, int index)
 
 void nmb_setMenuItemChecked(nmb_Handle menuItem, bool checked)
 {
-    // TODO
-    return;
+    // NB: this only works because set_active() sents a signal which is handled immediately. If some GTK implementation
+    // were to defer signal handling then this wouldn't work. Presumably that would break a lot of other peoples code
+    // too though...
+    context.shouldToggleCheckMenuItem = true;
+    gtk_check_menu_item_set_active(menuItem, checked);
+    context.shouldToggleCheckMenuItem = false;
 }
 
 bool nmb_isMenuItemChecked(nmb_Handle menuItem)
 {
-    // TODO
-    return false;
+    return gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuItem));
 }
 
 void nmb_setMenuItemEnabled(nmb_Handle menuItem, bool enabled)
