@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "common.inl"
+#include "common.h"
 
 SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer = NULL;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	SDL_VERSION(&wmInfo.version);
 	if (SDL_GetWindowWMInfo(g_window, &wmInfo))
 	{
-		createMenuBar((void*)wmInfo.info.win.window);
+		createExampleMenuBar((void*)wmInfo.info.win.window);
 	}
 	else
 	{
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 	}
 #else
 	// On macOS, pass nothing (native_menu_bar will handle it)
-	createMenuBar(NULL);
+	createExampleMenuBar(NULL);
 #endif
 
 	bool running = true;
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		handleEvents();
+		exampleEventHandler();
 
 		SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 		SDL_RenderClear(g_renderer);

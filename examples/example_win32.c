@@ -3,7 +3,7 @@
 
 #include "../native_menu_bar.h"
 
-#include "common.inl"
+#include "common.h"
 
 HWND g_hWnd = NULL;
 
@@ -89,7 +89,7 @@ int APIENTRY WinMain(HINSTANCE hCurrentInst, HINSTANCE hPreviousInst, LPSTR lpsz
         return 1;
 
     ShowWindow(hWnd, nCmdShow);
-    createMenuBar(hWnd);
+    createExampleMenuBar(hWnd);
 
     MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -107,7 +107,7 @@ int APIENTRY WinMain(HINSTANCE hCurrentInst, HINSTANCE hPreviousInst, LPSTR lpsz
             DispatchMessage(&msg);
         }
 
-        handleEvents();
+        exampleEventHandler();
     }
 
     nmb_shutdown();

@@ -11,6 +11,7 @@ function ExampleProject(name)
     flags "MultiProcessorCompile"
     warnings "Extra"
     -- fatalwarnings "All" -- GTK issues some warnings
+    files { "common.h" }
 end
 
 function getCommandOutput(command)
@@ -48,7 +49,6 @@ if is_windows then
 
         files {
             "example_win32.c",
-            "common.inl",
             "../native_menu_bar.h",
             "../native_menu_bar.c",
         }
@@ -63,7 +63,6 @@ elseif is_mac then
 
         files {
             "Info.plist",
-            "common.inl",
             "example_cocoa.m",
             "../native_menu_bar.h",
             "../native_menu_bar.c",
@@ -71,11 +70,10 @@ elseif is_mac then
 
 end
 
-ExampleProject "gtk2"
+ExampleProject "example_gtk2"
 
     files {
         "example_gtk.c",
-        "common.inl",
         "../native_menu_bar.h",
         "../native_menu_bar.c",
     }
@@ -91,11 +89,10 @@ ExampleProject "gtk2"
         linkoptions(libs)
     end
 
-ExampleProject "gtk3"
+ExampleProject "example_gtk3"
 
     files {
         "example_gtk.c",
-        "common.inl",
         "../native_menu_bar.h",
         "../native_menu_bar.c",
     }
@@ -116,7 +113,6 @@ ExampleProject "example_sdl2"
 
     files {
         "example_sdl2.c",
-        "common.inl",
         "../native_menu_bar.h",
         "../native_menu_bar.c",
     }

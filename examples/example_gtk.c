@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
-#include "common.inl"
+#include "common.h"
 
 static int count = 0;
 
@@ -24,7 +24,7 @@ void doIncrement(GtkWidget* widget, gpointer ptr)
 gboolean updateApp(gpointer ptr)
 {
     UNUSED(ptr);
-    handleEvents();
+    exampleEventHandler();
     return true;
 }
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	// menu bar
 	GtkWidget* menuBar = gtk_menu_bar_new();
 
-    createMenuBar(menuBar);
+    createExampleMenuBar(menuBar);
 
     GtkWidget* vbox = gtk_vbox_new(false, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), menuBar, false, false, 0);

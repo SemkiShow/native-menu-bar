@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-#include "common.inl"
+#include "common.h"
 
 /* Application delegate interface */
 @interface AppDelegate : NSObject <NSApplicationDelegate>
@@ -35,12 +35,12 @@
                                    userInfo:nil
                                     repeats:YES];
 
-    createMenuBar(NULL);
+    createExampleMenuBar(NULL);
 }
 
 - (void)updateFrame
 {
-    handleEvents();
+    exampleEventHandler();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {

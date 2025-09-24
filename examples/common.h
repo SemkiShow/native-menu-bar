@@ -12,7 +12,7 @@ nmb_Handle g_hEditCopy = 0;
 nmb_Handle g_hEditPaste = 0;
 nmb_Handle g_hHelpAbout = 0;
 
-void createMenuBar(void* nativeHandle)
+static void createExampleMenuBar(void* nativeHandle)
 {
     nmb_setup(nativeHandle);
 
@@ -48,7 +48,7 @@ void createMenuBar(void* nativeHandle)
     g_hHelpAbout = nmb_appendMenuItem(hHelpMenu, "About...");
 }
 
-void handleEvents()
+static void exampleEventHandler()
 {
     nmb_Event e;
     while (nmb_pollEvent(&e))
