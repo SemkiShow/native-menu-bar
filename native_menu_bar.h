@@ -92,10 +92,21 @@ nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption);
 */
 nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption);
 
-/** TODO */
+/** Append a new checkable menu item to the given parent menu. You should store the returned handle so you can respond to events from this menu item later.
+*
+* @param parent The parent menu handle.
+* @param caption The name of the menu item.
+* @return The handle to the newly created menu item, or NULL on failure.
+ */
 nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption);
 
-/** TODO */
+/** Creates a new checkable menu item as a child of the parent menu. You should store the returned handle so you can respond to events from this menu item later.
+*
+* @param parent The parent menu handle.
+* @param index The index at which to insert the menu item. If -1, it will be appended to the end.
+* @param caption The name of the menu item.
+* @return The handle to the newly created menu item, or NULL on failure.
+*/
 nmb_Handle nmb_insertCheckMenuItem(nmb_Handle parent, int index, const char* caption);
 
 /** Appends a separator line to the given parent menu. */

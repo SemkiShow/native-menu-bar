@@ -75,6 +75,23 @@ void stringCopyOrSkip(char* dest, unsigned size, const char* str, char skip)
     dest[iDest] = 0;
 }
 
+void stringCopyOrTranslate(char* dest, unsigned size, const char* str, char from, char to)
+{
+    if (!size || !dest || !str)
+    {
+        return;
+    }
+
+    unsigned iDest = 0;
+    while (iDest + 1 < size && *str)
+    {
+        dest[iDest] = *str == from ? to : *str;
+        iDest++;
+        str++;
+    }
+    dest[iDest] = 0;
+}
+
 #ifdef USE_WIN32
 
 #define WIN32_LEAN_AND_MEAN
@@ -170,7 +187,8 @@ nmb_Handle nmb_insertMenu(nmb_Handle parent, int index, const char* caption)
     }
 
     nmb_Handle submenu = CreatePopupMenu();
-    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_POPUP, (UINT_PTR)submenu, utf8ToWide(caption));
+    stringCopyOrTranslate(scratchBuffer, SCRATCH_BUFFER_SIZE, caption, '_', '&');
+    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_POPUP, (UINT_PTR)submenu, utf8ToWide(scratchBuffer));
     if (!result)
     {
         snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert submenu '%s'. Windows error %lu\n", caption, GetLastError());
@@ -201,7 +219,8 @@ nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
     }
 
     UINT id = g.nextId++;
-    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_STRING, id, utf8ToWide(caption));
+    stringCopyOrTranslate(scratchBuffer, SCRATCH_BUFFER_SIZE, caption, '_', '&');
+    BOOL result = InsertMenuW((HMENU)parent, (UINT)index, MF_BYPOSITION | MF_STRING, id, utf8ToWide(scratchBuffer));
     if (!result)
     {
         snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to insert menu item '%s'. Windows error %lu\n", caption, GetLastError());
@@ -209,6 +228,16 @@ nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
     }
     DrawMenuBar(g.hwnd);
     return (nmb_Handle)(uintptr_t)id;
+}
+
+nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption)
+{
+    return nmb_appendMenuItem(parent, caption);
+}
+
+nmb_Handle nmb_insertCheckMenuItem(nmb_Handle parent, int index, const char* caption)
+{
+    return nmb_insertMenuItem(parent, index, caption);
 }
 
 void nmb_appendSeparator(nmb_Handle parent)

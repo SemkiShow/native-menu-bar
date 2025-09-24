@@ -16,6 +16,7 @@ Features:
 * Regular menu items
 * Checkmark menu items
 * Enable and disable (grey out) menu items
+* Keyboard mnemonics supported platforms (Win32 and GTK)
 * Only 2 files for easy integration, .h and .c
 * Compiles cleanly on MSVC and clang
 
@@ -24,6 +25,8 @@ Please note that this library is not thread safe on any platform. You should not
 ## Notes
 
 The API provides different functions for checkable menu items `nmb_insertCheckMenuItem` and regular menu items `nmb_insertMenuItem`. This distinction is required by GTK backends which renders the two differently, but not WIN32 or Cocoa. If you don't care about GTK you can use regular menu items everywhere and set/check their checked state with `nmb_set/isMenuItemChecked`.
+
+Keyboard mnemonics allow users to jump to specific menu items by pressing a corresponding key on their keyboard. To use mnemonics place an underscore `_` character before the letter in the caption you would like to become the mnemonic. Mnemonics are available on Win32 and GTK backends. Cocoa does require manually specified mnemonics since users can start typing any caption name to jump to it automatically.
 
 Currently the library supports both GTK2 and GTK3. At the time of writing GTK2 and 3 on MacOS have strange behaviour around window resizing and respond to mouse input inconsistently. The GTK2 backend also issues deprecation warnings when compiling.
 

@@ -2,15 +2,17 @@
 
 ### Next
 
-- [ ] make GTK checkbox check/uncheck behaivour consisent with other platforms
+- [x] make GTK checkbox check/uncheck behaviour consistent with other platforms
 - [ ] test GTK backends on WSL
 - [ ] update readme with building instructions for Linux/WSL
 
-- [ ] Windows accelerator keys (the thing that happens when you press Alt)
+- [x] Windows and GTK accelerator keys (the thing that happens when you press Alt)
+
+	On GTK they are called mnemonics.
 
 	In a standard Win32 app pressing ALT moves focus to the menu bar, then you can press a key to jump to specific menus, specified by adding an & to the caption.
 
-	Some apps may disable this ALT beahviour (e.g. SDL) so they can use the ALT key for other stuff. In this case I'm not sure if we can manually re-enable the standard ALT behaviour somehow.
+	Some apps may disable this ALT behaviour (e.g. SDL) so they can use the ALT key for other stuff. In this case I'm not sure if we can manually re-enable the standard ALT behaviour somehow.
 
 	Options:
 	1. Do nothing. Accelerator keys are not a cross platform feature anyway.
@@ -18,6 +20,10 @@
 	3. Have our own API function to enable/disable accelerator keys that works independently of the backend (win32, sdl2, sfml, etc.) so the user gets an easy choice.
 
 ### Further Work
+
+- [ ] make tests test more than just compilation
+	
+	Currently it just makes sure the code compiles. This doesn't for example catch functions that are declared but not defined. It also only tests the default backends for compilation.
 
 - [ ] Keyboard shortcuts (key equivalents on mac)
 	
