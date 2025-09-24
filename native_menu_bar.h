@@ -86,7 +86,7 @@ nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption);
 /** Creates a new menu item as a child of the parent menu. You should store the returned handle so you can respond to events from this menu item later.
 *
 * @param parent The parent menu handle.
-* @param index The index at which to insert the menu item. If -1, it will be appended to the end.
+* @param index The index at which to insert the menu item. Negative indices insert from the end. An index of -1 is equivalent to appendXxxItem(), -2 means second last, and so on.
 * @param caption The name of the menu item.
 * @return The handle to the newly created menu item, or NULL on failure.
 */
@@ -103,7 +103,7 @@ nmb_Handle nmb_appendCheckMenuItem(nmb_Handle parent, const char* caption);
 /** Creates a new checkable menu item as a child of the parent menu. You should store the returned handle so you can respond to events from this menu item later.
 *
 * @param parent The parent menu handle.
-* @param index The index at which to insert the menu item. If -1, it will be appended to the end.
+* @param index The index at which to insert the menu item. Negative indices insert from the end. An index of -1 is equivalent to appendXxxItem(), -2 means second last, and so on.
 * @param caption The name of the menu item.
 * @return The handle to the newly created menu item, or NULL on failure.
 */
@@ -112,7 +112,7 @@ nmb_Handle nmb_insertCheckMenuItem(nmb_Handle parent, int index, const char* cap
 /** Appends a separator line to the given parent menu. */
 void nmb_appendSeparator(nmb_Handle parent);
 
-/** Inserts a separator line at the specified index in the parent menu. If index is -1, it will be appended to the end. */
+/** Inserts a separator line at the specified index in the parent menu. Negative indices insert from the end. An index of -1 is equivalent to appendSeparator(), -2 means second last, and so on. */
 void nmb_insertSeparator(nmb_Handle parent, int index);
 
 /** Sets the checked state of the given menu item. */

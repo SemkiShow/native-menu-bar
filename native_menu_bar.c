@@ -132,6 +132,16 @@ static WCHAR* utf8ToWide(const char* utf8)
     return g.wcharBuffer;
 }
 
+static int adjustIndex(nmb_Handle parent, int index)
+{
+    if(index < 0)
+    {
+        int numberOfItems = GetMenuItemCount((HMENU)parent);
+        return numberOfItems + index + 1;
+    }
+    return index;
+}
+
 void nmb_setup(void* hWnd)
 {
     memset(&g, 0, sizeof(g));
@@ -172,9 +182,10 @@ nmb_Handle nmb_appendMenu(nmb_Handle parent, const char* caption)
     return nmb_insertMenu(parent, -1, caption);
 }
 
-/* TODO: allow passing negative indices to insert from the end of the menu */
 nmb_Handle nmb_insertMenu(nmb_Handle parent, int index, const char* caption)
 {
+    index = adjustIndex(parent, index);
+
     if (index < -1)
     {
         snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
@@ -203,9 +214,10 @@ nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption)
     return nmb_insertMenuItem(parent, -1, caption);
 }
 
-/* TODO: allow passing negative indices to insert from the end of the menu */
 nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
 {
+    index = adjustIndex(parent, index);
+
     if (index < -1)
     {
         snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
@@ -247,6 +259,8 @@ void nmb_appendSeparator(nmb_Handle parent)
 
 void nmb_insertSeparator(nmb_Handle parent, int index)
 {
+    index = adjustIndex(parent, index);
+
     if (index < -1)
     {
         snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);

@@ -3,6 +3,7 @@
 ### Next
 
 - [x] make GTK checkbox check/uncheck behaviour consistent with other platforms
+- [x] allow using negative indices to insert menu items on windows
 - [ ] test GTK backends on WSL
 - [ ] update readme with building instructions for Linux/WSL
 

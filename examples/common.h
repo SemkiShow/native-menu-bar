@@ -37,7 +37,8 @@ static void createExampleMenuBar(void* nativeHandle)
     nmb_appendCheckMenuItem(submenu1, "Item 1");
     nmb_appendCheckMenuItem(submenu1, "Item 2");
     nmb_appendCheckMenuItem(submenu1, "Item 3");
-    nmb_insertMenuItem(submenu1, 1, "Inserted Menu");
+    nmb_insertMenuItem(submenu1, -2, "Inserted Menu");
+    nmb_insertSeparator(submenu1, -3);
     nmb_insertSeparator(hFileMenu, 2);
     nmb_insertSeparator(hFileMenu, 1);
 
