@@ -1,4 +1,3 @@
-
 function ExampleProject(name)
     project(name)
     kind "WindowedApp"
@@ -11,8 +10,18 @@ function ExampleProject(name)
     warnings "Default"
     flags "MultiProcessorCompile"
     warnings "Extra"
-    fatalwarnings "All"
+    -- fatalwarnings "All" -- GTK issues some warnings
 end
+
+function getCommandOutput(command)
+    local handle = io.popen(command)
+    local result = handle:read("*a")
+    handle:close()
+    return result
+end
+
+local is_mac = _TARGET_OS == "macosx"
+local is_windows = _TARGET_OS == "windows"
 
 workspace "examples"
 
@@ -33,7 +42,7 @@ workspace "examples"
     filter {}
 
 
-if _TARGET_OS == "windows" then
+if is_windows then
 
     ExampleProject "example_win32"
 
@@ -44,7 +53,7 @@ if _TARGET_OS == "windows" then
             "../native_menu_bar.c",
         }
 
-else -- assume target is macos
+elseif is_mac then
 
     ExampleProject "example_cocoa"
 
@@ -61,6 +70,47 @@ else -- assume target is macos
         }
 
 end
+
+ExampleProject "gtk2"
+
+    files {
+        "example_gtk.c",
+        "common.inl",
+        "../native_menu_bar.h",
+        "../native_menu_bar.c",
+    }
+
+    defines { "NMB_USE_GTK2" }
+
+    if is_mac then files "Info.plist" end
+
+    do
+        local cflags = getCommandOutput("pkg-config --cflags gtk+-2.0")
+        local libs = getCommandOutput("pkg-config --libs gtk+-2.0")
+        buildoptions(cflags)
+        linkoptions(libs)
+    end
+
+ExampleProject "gtk3"
+
+    files {
+        "example_gtk.c",
+        "common.inl",
+        "../native_menu_bar.h",
+        "../native_menu_bar.c",
+    }
+
+    defines { "NMB_USE_GTK3" }
+
+    if is_mac then files "Info.plist" end
+
+    do
+        local cflags = getCommandOutput("pkg-config --cflags gtk+-3.0")
+        local libs = getCommandOutput("pkg-config --libs gtk+-3.0")
+        buildoptions(cflags)
+        linkoptions(libs)
+    end
+
 
 ExampleProject "example_sdl2"
 

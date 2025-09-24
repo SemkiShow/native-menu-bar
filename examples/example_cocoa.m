@@ -23,7 +23,7 @@
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
     
-    [self.window setTitle:@"Native macOS Window with Menu Bar"];
+    [self.window setTitle:@"Native Menu Bar Example - Cocoa"];
     [self.window setReleasedWhenClosed:NO];
     [self.window center];
     [self.window makeKeyAndOrderFront:nil];

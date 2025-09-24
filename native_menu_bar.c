@@ -2,6 +2,17 @@
 
 #include <stdio.h>
 
+/* Select Backend */
+#if defined(NMB_USE_GTK2) || defined(NMB_USE_GTK3)
+    #define USE_GTK
+#elif _WIN32
+    #define USE_WIN32
+#elif __APPLE__
+    #define USE_COCOA
+#else
+    #error "Native Menu Bar backend not specified."
+#endif
+
 #define MAX_EVENTS 64
 #define ERROR_BUFFER_SIZE 128
 #define UNUSED(x) (void)(x)
@@ -40,7 +51,7 @@ const char* nmb_getLastError(void)
 	return errorBuffer;
 }
 
-#ifdef _WIN32
+#ifdef USE_WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -110,9 +121,9 @@ bool nmb_pollEvent(nmb_Event* event)
     return getEvent(event);
 };
 
-nmb_Platform nmb_getPlatform()
+nmb_Backend nmb_getBackend()
 {
-    return nmb_Platform_windows;
+    return nmb_Backend_win32;
 }
 
 nmb_Handle nmb_appendMenu(nmb_Handle parent, const char* caption)
@@ -249,7 +260,8 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 	return (state & MF_GRAYED) != MF_GRAYED;
 }
 
-#else
+#endif
+#ifdef USE_COCOA
 
 #import <Cocoa/Cocoa.h>
 
@@ -395,9 +407,9 @@ bool nmb_pollEvent(nmb_Event* event)
     return getEvent(event);
 }
 
-nmb_Platform nmb_getPlatform(void)
+nmb_Backend nmb_getBackend(void)
 {
-    return nmb_Platform_macos;
+    return nmb_Backend_cocoa;
 }
 
 nmb_Handle nmb_appendMenu(nmb_Handle parent, const char* caption)
@@ -502,6 +514,162 @@ void nmb_setMenuItemEnabled(nmb_Handle menuItem, bool enabled)
 bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 {
 	return ((NSMenuItem*)menuItem).enabled;
+}
+
+#endif
+#ifdef USE_GTK
+
+#include <gtk/gtk.h>
+
+static struct {
+    GtkWidget* menuBar;
+} context;
+
+
+static int adjustIndex(nmb_Handle parent, int index)
+{
+    if(index < 0)
+    {
+        GList* list = gtk_container_get_children(GTK_CONTAINER(parent));
+        guint length = g_list_length(list);
+        return length + index + 1;
+    }
+    return index;
+}
+
+static void onActivate(GtkWidget* widget, gpointer ptr)
+{
+    nmb_Event e;
+    e.sender = widget;
+    e.event = nmb_EventType_itemTriggered;
+    pushEvent(&e);
+}
+
+void nmb_setup(void* container)
+{
+    context.menuBar = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(container), context.menuBar, false, false, 0); // TODO: the user want's to add the menu bar some other way?
+}
+
+void nmb_shutdown()
+{
+    memset(&context, 0, sizeof(context));
+}
+
+bool nmb_pollEvent(nmb_Event* event)
+{
+    return getEvent(event);
+}
+
+nmb_Backend nmb_getBackend(void)
+{
+    return nmb_Backend_gtk;
+}
+
+nmb_Handle nmb_appendMenu(nmb_Handle parent, const char* caption)
+{
+    return nmb_insertMenu(parent, -1, caption);
+}
+
+nmb_Handle nmb_insertMenu(nmb_Handle parent, int index, const char* caption)
+{
+    if(!parent)
+    {
+        parent = context.menuBar;
+    }
+
+    index = adjustIndex(parent, index);
+
+    if(index < 0)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return NULL;
+    }
+
+    GtkWidget* new_item = gtk_menu_item_new_with_label(caption);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(parent), new_item, index);
+
+    GtkWidget* new_menu = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(new_item), new_menu);
+
+    return new_menu;
+}
+
+nmb_Handle nmb_appendMenuItem(nmb_Handle parent, const char* caption)
+{
+    return nmb_insertMenuItem(parent, -1, caption);
+}
+
+nmb_Handle nmb_insertMenuItem(nmb_Handle parent, int index, const char* caption)
+{
+    if(!parent)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create menu item because parent was NULL\n");
+        return NULL;
+    }
+
+    index = adjustIndex(parent, index);
+
+    if(index < 0)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return NULL;
+    }
+
+    GtkWidget* new_item = gtk_menu_item_new_with_label(caption);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(parent), new_item, index);
+    g_signal_connect(new_item, "activate", G_CALLBACK(onActivate), NULL);
+
+    return new_item;
+}
+
+void nmb_appendSeparator(nmb_Handle parent)
+{
+    nmb_insertSeparator(parent, -1);
+}
+
+void nmb_insertSeparator(nmb_Handle parent, int index)
+{
+    if(!parent)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Failed to create separator because parent was NULL\n");
+        return;
+    }
+
+    index = adjustIndex(parent, index);
+
+    if(index < 0)
+    {
+        snprintf(errorBuffer, ERROR_BUFFER_SIZE, "Invalid index '%d' passed to '%s'\n", index, __func__);
+        return;
+    }
+
+    GtkWidget* sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(parent), sep);
+
+    return;
+}
+
+void nmb_setMenuItemChecked(nmb_Handle menuItem, bool checked)
+{
+    // TODO
+    return;
+}
+
+bool nmb_isMenuItemChecked(nmb_Handle menuItem)
+{
+    // TODO
+    return false;
+}
+
+void nmb_setMenuItemEnabled(nmb_Handle menuItem, bool enabled)
+{
+    gtk_widget_set_sensitive(GTK_WIDGET(menuItem), enabled);
+}
+
+bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
+{
+    return gtk_widget_get_sensitive(GTK_WIDGET(menuItem));
 }
 
 #endif

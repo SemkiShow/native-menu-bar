@@ -17,11 +17,12 @@ extern "C" {
 
 typedef void* nmb_Handle;
 
-typedef enum nmb_Platform
+typedef enum nmb_Backend
 {
-    nmb_Platform_windows,
-    nmb_Platform_macos
-} nmb_Platform;
+    nmb_Backend_win32,
+    nmb_Backend_cocoa,
+    nmb_Backend_gtk,
+} nmb_Backend;
 
 typedef enum nmb_EventType
 {
@@ -51,11 +52,11 @@ void nmb_shutdown();
 */
 bool nmb_pollEvent(nmb_Event* event);
 
-/** Get the platform on which the application is running. You may call this function before calling nmb_setup().
+/** Get the backend implementation of Native Menu Bar. You may call this function before calling nmb_setup().
 *
-* @return The platform enum value indicating the current platform.
+* @return The backend enum value indicating the current platform.
 */
-nmb_Platform nmb_getPlatform(void);
+nmb_Backend nmb_getBackend(void);
 
 /** Append a new submenu to the given parent menu.
 *
@@ -124,11 +125,11 @@ const char* nmb_getLastError(void);
 
 // Initialise the Native Menu Bar
 
-if (nmb_getPlatform() == nmb_Platform_windows)
+if (nmb_getBackend() == nmb_Backend_win32)
 {
 	nmb_setup(hWnd); // On Wondows, pass the HWND of your main window
 }
-else if (nmb_getPlatform() == nmb_Platform_macos)
+else if (nmb_getBackend() == nmb_Backend_cocoa)
 {
 	nmb_setup(NULL); // Pass NULL on macOS
 }
@@ -142,7 +143,7 @@ g_hFileNew = nmb_appendMenuItem(hFileMenu, "New");
 g_hFileOpen = nmb_appendMenuItem(hFileMenu, "Open...");
 g_hFileSave = nmb_appendMenuItem(hFileMenu, "Save");
 
-if (nmb_getPlatform() == nmb_Platform_windows)
+if (nmb_getBackend() == nmb_Backend_win32)
 {
 	nmb_appendSeparator(hFileMenu);
 	g_hFileExit = nmb_appendMenuItem(hFileMenu, "Exit");
