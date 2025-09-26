@@ -14,11 +14,11 @@ nmb_Handle g_hHelpAbout = 0;
 
 static void createExampleMenuBar(void* nativeHandle)
 {
-    nmb_setup(nativeHandle);
+    nmb_setup(nativeHandle, nmb_SetupFlags_createPlatformMenus);
 
-    nmb_Handle hEditMenu = nmb_appendMenu(NULL, "Edit");
+    nmb_Handle hFileMenu = nmb_insertMenu(NULL, 0, "File");
+    nmb_Handle hEditMenu = nmb_insertMenu(NULL, 1, "Edit"); /* example inserting at a specific position in the menu bar */
     nmb_Handle hHelpMenu = nmb_appendMenu(NULL, "Help öäĂĹŸ");
-    nmb_Handle hFileMenu = nmb_insertMenu(NULL, 0, "File"); /* example inserting at a specific position in the menu bar */
 
     /* File menu */
     g_hFileNew = nmb_appendMenuItem(hFileMenu, "_New");
@@ -54,7 +54,11 @@ static void exampleEventHandler()
     nmb_Event e;
     while (nmb_pollEvent(&e))
     {
-        if (e.sender == g_hFileNew)
+        if (e.event == nmb_EventType_openSettings)
+        {
+            printf("Open the applicaiton settings!\n");
+        }
+        else if (e.sender == g_hFileNew)
         {
             printf("New file selected\n");
         }

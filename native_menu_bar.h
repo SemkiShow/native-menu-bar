@@ -24,10 +24,17 @@ typedef enum nmb_Backend
     nmb_Backend_gtk,
 } nmb_Backend;
 
+typedef enum nmb_SetupFlags
+{
+    nmb_SetupFlags_none = 0,
+    nmb_SetupFlags_createPlatformMenus = 1,
+} nmb_SetupFlags;
+
 typedef enum nmb_EventType
 {
 	nmb_EventType_none,
-	nmb_EventType_itemTriggered
+	nmb_EventType_itemTriggered,
+    nmb_EventType_openSettings,
 } nmb_EventType;
 
 typedef struct nmb_Event
@@ -40,7 +47,7 @@ typedef struct nmb_Event
 *
 * @param windowHandle On Windows you should pass the HWND of your main window. On macOS you should pass NULL.
 */
-void nmb_setup(void* windowHandle);
+void nmb_setup(void* windowHandle, nmb_SetupFlags flags);
 
 /** Call once at the end of your application life cycle to clean up. */
 void nmb_shutdown();
@@ -144,11 +151,11 @@ const char* nmb_getLastError(void);
 
 if (nmb_getBackend() == nmb_Backend_win32)
 {
-	nmb_setup(hWnd); // On Wondows, pass the HWND of your main window
+	nmb_setup(hWnd, 0); // On Wondows, pass the HWND of your main window
 }
 else if (nmb_getBackend() == nmb_Backend_cocoa)
 {
-	nmb_setup(NULL); // Pass NULL on macOS
+	nmb_setup(NULL, nmb_SetupFlags_createPlatformMenus); // Pass NULL on macOS
 }
 
 // build your menu bar

@@ -16,6 +16,7 @@ Features:
 * Regular menu items
 * Checkmark menu items
 * Enable and disable (grey out) menu items
+* Create default platform menus (App and Window menus on MacOS)
 * Keyboard mnemonics on supported platforms (Win32 and GTK)
 * Only 2 files for easy integration, .h and .c
 * Compiles cleanly on MSVC and clang

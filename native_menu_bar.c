@@ -4,11 +4,11 @@
 
 /* Select Backend */
 #if defined(NMB_USE_GTK2) || defined(NMB_USE_GTK3)
-    #define USE_GTK
+    #define NMB_USE_GTK
 #elif _WIN32
-    #define USE_WIN32
+    #define NMB_USE_WIN32
 #elif __APPLE__
-    #define USE_COCOA
+    #define NMB_USE_COCOA
 #else
     #error "Native Menu Bar backend not specified."
 #endif
@@ -92,7 +92,7 @@ void stringCopyOrTranslate(char* dest, unsigned size, const char* str, char from
     dest[iDest] = 0;
 }
 
-#ifdef USE_WIN32
+#ifdef NMB_USE_WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -142,7 +142,7 @@ static int adjustIndex(nmb_Handle parent, int index)
     return index;
 }
 
-void nmb_setup(void* hWnd)
+void nmb_setup(void* hWnd, nmb_SetupFlags flags)
 {
     memset(&g, 0, sizeof(g));
     errorBuffer[0] = 0;
@@ -328,7 +328,7 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 }
 
 #endif
-#ifdef USE_COCOA
+#ifdef NMB_USE_COCOA
 
 #import <Cocoa/Cocoa.h>
 
@@ -339,6 +339,7 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 static struct
 {
     MenuHandler* handler;
+    NSMenuItem* preferences;
 } g;
 
 @implementation MenuHandler
@@ -346,7 +347,14 @@ static struct
 {
     nmb_Event e;
     e.sender = sender;
-    e.event = nmb_EventType_itemTriggered;
+    if(sender == g.preferences)
+    {
+        e.event = nmb_EventType_openSettings;
+    }
+    else
+    {
+        e.event = nmb_EventType_itemTriggered;
+    }
     pushEvent(&e);
 }
 @end
@@ -408,7 +416,7 @@ static NSString* getApplicationName(void)
     return appName;
 }
 
-static void createDefaultMenus(void)
+static void createMacPlatformMenus(bool additionalPlatformMenus)
 {
     if (NSApp == nil)
         return;
@@ -420,12 +428,54 @@ static void createDefaultMenus(void)
     /* Add some minimal default menu items (the HIG actually want us to add quite a few more) */
     [appMenu addItemWithTitle:[@"About " stringByAppendingString:appName] action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
     [appMenu addItem:[NSMenuItem separatorItem]];
+
+    if(additionalPlatformMenus)
+    {
+        g.preferences = [appMenu addItemWithTitle:@"Settings…" action:@selector(handleAction:) keyEquivalent:@","];
+        [g.preferences setTarget:g.handler];
+
+        [appMenu addItem:[NSMenuItem separatorItem]];
+
+        /* services */
+        NSMenu* serviceMenu = [[NSMenu alloc] initWithTitle:@""];
+        NSMenuItem* serviceMenuItem = [appMenu addItemWithTitle:@"Services" action:nil keyEquivalent:@""];
+        [serviceMenuItem setSubmenu:serviceMenu];
+        [NSApp setServicesMenu:serviceMenu];
+
+        [appMenu addItem:[NSMenuItem separatorItem]];
+
+        /* hide app */
+        [appMenu addItemWithTitle:[@"Hide " stringByAppendingString:appName] action:@selector(hide:) keyEquivalent:@"h"];
+
+        /* hide others */
+        NSMenuItem* hideMenuItem = [appMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
+        [hideMenuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption | NSEventModifierFlagCommand)];
+
+        /* show all */
+        [appMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
+    }
+
+    [appMenu addItem:[NSMenuItem separatorItem]];
     [appMenu addItemWithTitle:[@"Quit " stringByAppendingString:appName] action:@selector(terminate:) keyEquivalent:@"q"];
 
     /* Attach it the app */
     NSMenuItem* appMenuItem = [[NSMenuItem alloc] init];
     [appMenuItem setSubmenu:appMenu];
     [[NSApp mainMenu] addItem:appMenuItem];
+
+    if(additionalPlatformMenus)
+    {
+        NSMenu* windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
+
+        [windowMenu addItemWithTitle:@"Close" action:@selector(performClose:) keyEquivalent:@"w"];
+        [windowMenu addItemWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
+        [windowMenu addItemWithTitle:@"Zoom" action:@selector(performZoom:) keyEquivalent:@""];
+
+        NSMenuItem* windowMenuItem = [[NSMenuItem alloc] init];
+        [windowMenuItem setSubmenu:windowMenu];
+        [[NSApp mainMenu] addItem:windowMenuItem];
+        [NSApp setWindowsMenu:windowMenu]; /* This adds a bunch more default menu items for the Window menu */
+    }
 
     [appMenu release];
     [appMenuItem release];
@@ -441,7 +491,7 @@ static NSInteger adjustIndex(nmb_Handle parent, int index)
     return index;
 }
 
-void nmb_setup(void* windowHandle /* unused on mac */)
+void nmb_setup(void* windowHandle /* unused on mac */, nmb_SetupFlags flags)
 {
     UNUSED(windowHandle);
     memset(&g, 0, sizeof(g));
@@ -459,7 +509,7 @@ void nmb_setup(void* windowHandle /* unused on mac */)
         NSMenu* mainMenu = [[NSMenu alloc] init];
         [NSApp setMainMenu:mainMenu];
         [mainMenu release];
-        createDefaultMenus();
+        createMacPlatformMenus(flags & nmb_SetupFlags_createPlatformMenus);
     }
 }
 
@@ -596,7 +646,7 @@ bool nmb_isMenuItemEnabled(nmb_Handle menuItem)
 }
 
 #endif
-#ifdef USE_GTK
+#ifdef NMB_USE_GTK
 
 #include <gtk/gtk.h>
 
@@ -647,7 +697,7 @@ static void onActivate(GtkWidget* widget, gpointer isCheckMenuItem)
     }
 }
 
-void nmb_setup(void* menuBar)
+void nmb_setup(void* menuBar, nmb_SetupFlags flags)
 {
     context.shouldToggleCheckMenuItem = false;
     context.menuBar = menuBar;
