@@ -144,6 +144,7 @@ static int adjustIndex(nmb_Handle parent, int index)
 
 void nmb_setup(void* hWnd, nmb_SetupFlags flags)
 {
+    UNUSED(flags);
     memset(&g, 0, sizeof(g));
     errorBuffer[0] = 0;
     g.nextId = 1;
