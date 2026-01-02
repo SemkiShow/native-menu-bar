@@ -3,6 +3,10 @@
 #include <stdio.h>
 
 /* Select Backend */
+#if __linux__
+    #define NMB_USE_GTK3
+#endif
+
 #if defined(NMB_USE_GTK2) || defined(NMB_USE_GTK3)
     #define NMB_USE_GTK
 #elif _WIN32
