@@ -782,7 +782,7 @@ static nmb_Handle internal_insertItem(nmb_Handle parent, int index, const char* 
 
     GtkWidget* new_item = createFunc(caption);
     gtk_menu_shell_insert(GTK_MENU_SHELL(parent), new_item, index);
-    g_signal_connect(new_item, "activate", G_CALLBACK(onActivate), isCheckMenuItem ? 1 : 0);
+    g_signal_connect(new_item, "activate", G_CALLBACK(onActivate), (void*)(intptr_t)(isCheckMenuItem ? 1 : 0));
 
     return new_item;
 }
